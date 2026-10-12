@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from "remark-gfm";
 
 const starterPrompts = [
   'Plan 5 days in Kerala for nature, food, and a medium budget.',
@@ -63,6 +64,12 @@ const requestTripPlan = async ({ messages }) => {
   const data = await response.json()
   return data.choices?.[0]?.message?.content || 'Groq returned an empty response.'
 }
+
+
+const formatMarkdown = (content) =>
+  content
+    .replace(/<br\s*\/?>/gi, "\n\n")
+    .replace(/&lt;br\s*\/?&gt;/gi, "\n\n");
 
 
 const Plan = () => {
@@ -129,11 +136,13 @@ const Plan = () => {
               return (
                 <div key={`${message.role}-${index}`} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[82%] whitespace-pre-wrap rounded-lg px-5 py-4 text-base leading-7 shadow-sm ${
+                    className={`max-w-[100%] whitespace-pre-wrap rounded-lg px-5 py-4 text-base leading-7 shadow-sm ${
                       isUser ? 'bg-[#101913] text-white' : 'border border-black/10 bg-white text-[#101913]'
                     }`}
                   >
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {formatMarkdown(message.content)}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )
